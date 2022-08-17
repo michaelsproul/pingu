@@ -9,6 +9,7 @@ internet = "8.8.8.8"
 
 check_delay = 30
 reboot_delay = 5
+error_delay = 30
 post_reboot_delay = 300
 
 ping_timeout = 10
@@ -27,7 +28,7 @@ async def internet_online():
     except TimeoutError:
         return False
 
-async def main():
+async def run():
     plug = SmartPlug(ip)
 
     await plug.update()
@@ -51,6 +52,15 @@ async def main():
             print("ping succeeded")
             num_failures = 0
             await asyncio.sleep(check_delay)
+
+async def main():
+    while True:
+        try:
+            await run()
+        except Exception as e:
+            print(e)
+            print(f"error running main loop, retrying in {error_delay} seconds")
+            await asyncio.sleep(error_delay)
 
 if __name__ == "__main__":
     asyncio.run(main())
